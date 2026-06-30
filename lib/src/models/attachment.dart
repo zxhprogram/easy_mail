@@ -32,23 +32,22 @@ class Attachment {
   Stream<List<int>> openRead({int chunkSize = 8 * 1024}) async* {
     if (bytes.isEmpty) return;
     for (var offset = 0; offset < bytes.length; offset += chunkSize) {
-      final end = offset + chunkSize > bytes.length
-          ? bytes.length
-          : offset + chunkSize;
+      final end =
+          offset + chunkSize > bytes.length ? bytes.length : offset + chunkSize;
       yield bytes.sublist(offset, end);
     }
   }
 
   Map<String, dynamic> toJson() => {
-    'partId': partId,
-    'fileName': fileName,
-    'mimeType': mimeType,
-    'size': size,
-    'charset': charset,
-    'disposition': disposition.name,
-    // Body bytes intentionally omitted: attachments may be large and are
-    // usually persisted to disk rather than JSON.
-  };
+        'partId': partId,
+        'fileName': fileName,
+        'mimeType': mimeType,
+        'size': size,
+        'charset': charset,
+        'disposition': disposition.name,
+        // Body bytes intentionally omitted: attachments may be large and are
+        // usually persisted to disk rather than JSON.
+      };
 
   factory Attachment.fromJson(Map<String, dynamic> json) {
     final dispName = json['disposition'] as String? ?? 'unknown';

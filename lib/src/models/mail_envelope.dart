@@ -92,7 +92,9 @@ class MailEnvelope {
         references: (json['references'] as List<dynamic>? ?? [])
             .map((e) => e as String)
             .toList(),
-        date: json['date'] == null ? null : DateTime.parse(json['date'] as String),
+        date: json['date'] == null
+            ? null
+            : DateTime.parse(json['date'] as String),
       );
 
   @override
@@ -142,8 +144,18 @@ class HttpDateParser {
   HttpDateParser._();
 
   static final Map<String, int> _months = {
-    'jan': 1, 'feb': 2, 'mar': 3, 'apr': 4, 'may': 5, 'jun': 6,
-    'jul': 7, 'aug': 8, 'sep': 9, 'oct': 10, 'nov': 11, 'dec': 12,
+    'jan': 1,
+    'feb': 2,
+    'mar': 3,
+    'apr': 4,
+    'may': 5,
+    'jun': 6,
+    'jul': 7,
+    'aug': 8,
+    'sep': 9,
+    'oct': 10,
+    'nov': 11,
+    'dec': 12,
   };
 
   static DateTime parse(String input) {

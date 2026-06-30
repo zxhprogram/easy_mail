@@ -1,0 +1,58 @@
+name: Publish to pub.dev
+
+# Triggers when a version tag (e.g. v0.1.0, v0.2.0-dev.1) is pushed.
+# Also supports manual dispatch from the Actions tab.
+#
+# Publishing uses OIDC trust-based authentication (Google's recommended
+# approach since 2024) — no long-lived tokens to manage. Before the first
+# publish you must configure the package on pub.dev:
+#
+#   1. Go to https://pub.dev/packages/easy_mail/admin
+#   2. Under "Automated publishing" add the GitHub repository:
+#        <your-org>/<your-repo>
+#   3. Ensure the tag pattern below matches your versioning scheme.
+#
+# Alternative: if you prefer a personal access token, create a pub.dev
+# token at https://pub.dev/me/admin-accounts, store it as a GitHub
+# secret named PUB_DEV_PUBLISH_ACCESS_TOKEN, and replace the Publish
+# step with:
+#
+#   - name: Publish
+#     run: dart pub publish --force
+#     env:
+#       PUB_ACCESS_TOKEN: ${{ secrets.PUB_DEV_PUBLISH_ACCESS_TOKEN }}
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+*'
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write  # Required for OIDC trust-based publishing
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dart-lang/setup-dart@v1
+
+      - name: Install dependencies
+        run: dart pub get
+
+      - name: Verify formatting
+        run: dart format --output=none --set-exit-if-changed .
+
+      - name: Analyze
+        run: dart analyze --fatal-infos
+
+      - name: Run tests
+        run: dart test --exclude-tags=network
+
+      - name: Dry-run publish (verify package is valid)
+        run: dart pub publish --dry-run
+
+      - name: Publish to pub.dev
+        run: dart pub publish --force

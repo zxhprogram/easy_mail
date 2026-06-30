@@ -49,7 +49,8 @@ class MailMessage {
       };
 
   factory MailMessage.fromJson(Map<String, dynamic> json) => MailMessage(
-        envelope: MailEnvelope.fromJson(json['envelope'] as Map<String, dynamic>),
+        envelope:
+            MailEnvelope.fromJson(json['envelope'] as Map<String, dynamic>),
         plainTextBody: json['plainTextBody'] as String? ?? '',
         htmlBody: json['htmlBody'] as String? ?? '',
         attachments: (json['attachments'] as List<dynamic>? ?? [])

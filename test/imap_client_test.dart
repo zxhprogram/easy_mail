@@ -91,8 +91,7 @@ void main() {
   });
 
   test('fetchEnvelope parses header literal', () async {
-    const headerBlock =
-        'From: alice@example.com\r\n'
+    const headerBlock = 'From: alice@example.com\r\n'
         'To: bob@example.com\r\n'
         'Subject: Hello\r\n'
         'Date: Mon, 02 Jan 2023 03:04:05 +0000\r\n'
@@ -150,8 +149,7 @@ void main() {
   });
 
   test('fetchMessage parses full RFC822 literal', () async {
-    const raw =
-        'From: a@x.com\r\n'
+    const raw = 'From: a@x.com\r\n'
         'Subject: Full\r\n'
         'Content-Type: text/plain; charset=utf-8\r\n'
         '\r\n'
@@ -179,8 +177,8 @@ void main() {
     await client.connect();
     await client.login('alice', 'secret');
     await client.markSeen(5);
-    expect(socket.writtenText,
-        contains('A2 UID STORE 5 +FLAGS.SILENT (\\Seen)'));
+    expect(
+        socket.writtenText, contains('A2 UID STORE 5 +FLAGS.SILENT (\\Seen)'));
   });
 
   test('connectionState stream emits lifecycle', () async {

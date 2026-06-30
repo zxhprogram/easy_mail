@@ -6,8 +6,7 @@ import 'package:test/test.dart';
 void main() {
   group('MimeParser.parse — simple text', () {
     test('parses plain text body and envelope', () {
-      const raw =
-          'From: alice@example.com\r\n'
+      const raw = 'From: alice@example.com\r\n'
           'To: bob@example.com\r\n'
           'Subject: Hello\r\n'
           'Date: Mon, 02 Jan 2023 03:04:05 +0000\r\n'
@@ -26,15 +25,13 @@ void main() {
 
     test('decodes RFC 2047 subject', () {
       final b64 = base64.encode(utf8.encode('你好'));
-      final raw =
-          'From: a@x.com\r\nSubject: =?utf-8?B?$b64?=\r\n\r\nbody';
+      final raw = 'From: a@x.com\r\nSubject: =?utf-8?B?$b64?=\r\n\r\nbody';
       final msg = MimeParser.parse(raw);
       expect(msg.subject, '你好');
     });
 
     test('unfolds folded headers', () {
-      const raw =
-          'From: a@x.com\r\n'
+      const raw = 'From: a@x.com\r\n'
           'Subject: This is\r\n'
           ' a folded\r\n'
           ' subject\r\n'
@@ -48,8 +45,7 @@ void main() {
   group('MimeParser.parse — transfer encodings', () {
     test('decodes base64 body', () {
       final body = base64.encode(utf8.encode('Hello base64'));
-      final raw =
-          'Content-Type: text/plain; charset=utf-8\r\n'
+      final raw = 'Content-Type: text/plain; charset=utf-8\r\n'
           'Content-Transfer-Encoding: base64\r\n'
           '\r\n'
           '$body';
@@ -58,8 +54,7 @@ void main() {
     });
 
     test('decodes quoted-printable body', () {
-      const raw =
-          'Content-Type: text/plain; charset=utf-8\r\n'
+      const raw = 'Content-Type: text/plain; charset=utf-8\r\n'
           'Content-Transfer-Encoding: quoted-printable\r\n'
           '\r\n'
           'caf=C3=A9=20res=\r\n'
@@ -71,8 +66,7 @@ void main() {
 
   group('MimeParser.parse — multipart', () {
     test('multipart/alternative yields both text and html', () {
-      const raw =
-          'Content-Type: multipart/alternative; boundary="ALT"\r\n'
+      const raw = 'Content-Type: multipart/alternative; boundary="ALT"\r\n'
           '\r\n'
           '--ALT\r\n'
           'Content-Type: text/plain; charset=utf-8\r\n'
@@ -92,8 +86,7 @@ void main() {
     test('multipart/mixed extracts attachment', () {
       final fileBytes = utf8.encode('hello file content');
       final b64 = base64.encode(fileBytes);
-      final raw =
-          'Content-Type: multipart/mixed; boundary="MIX"\r\n'
+      final raw = 'Content-Type: multipart/mixed; boundary="MIX"\r\n'
           '\r\n'
           '--MIX\r\n'
           'Content-Type: text/plain; charset=utf-8\r\n'
@@ -119,8 +112,7 @@ void main() {
     test('attachment chunked stream reconstructs bytes', () async {
       final fileBytes = List<int>.generate(5000, (i) => i % 256);
       final b64 = base64.encode(fileBytes);
-      final raw =
-          'Content-Type: multipart/mixed; boundary="MIX"\r\n'
+      final raw = 'Content-Type: multipart/mixed; boundary="MIX"\r\n'
           '\r\n'
           '--MIX\r\n'
           'Content-Type: text/plain\r\n\r\nbody\r\n'
@@ -158,8 +150,7 @@ void main() {
 
   group('MimeParser.parseInBackground', () {
     test('runs in an isolate and returns a message', () async {
-      const raw =
-          'From: a@x.com\r\nSubject: isolate\r\n\r\nbackground body';
+      const raw = 'From: a@x.com\r\nSubject: isolate\r\n\r\nbackground body';
       final msg = await MimeParser.parseInBackground(raw);
       expect(msg.subject, 'isolate');
       expect(msg.plainTextBody, 'background body');
@@ -168,8 +159,7 @@ void main() {
 
   group('MimeParser.parseHeaders', () {
     test('parses and folds headers', () {
-      const bytes =
-          'Subject: hello\r\n'
+      const bytes = 'Subject: hello\r\n'
           'X-Long: a\r\n'
           ' b\r\n'
           'From: a@x.com\r\n';
@@ -182,8 +172,7 @@ void main() {
 
   group('MailMessage JSON', () {
     test('round-trips through toJson/fromJson (envelope + bodies)', () {
-      const raw =
-          'From: a@x.com\r\n'
+      const raw = 'From: a@x.com\r\n'
           'To: b@y.com\r\n'
           'Subject: JSON\r\n'
           'Content-Type: multipart/alternative; boundary="ALT"\r\n'

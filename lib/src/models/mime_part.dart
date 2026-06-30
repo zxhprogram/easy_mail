@@ -33,7 +33,8 @@ class MimePart {
   });
 
   /// Value of the `Content-Type` header, defaulting to `text/plain`.
-  String get contentType => headers['content-type']?.toLowerCase() ?? 'text/plain';
+  String get contentType =>
+      headers['content-type']?.toLowerCase() ?? 'text/plain';
 
   /// Primary type, e.g. `text`, `multipart`, `application`.
   String get mainType => _splitType(0);
@@ -50,7 +51,8 @@ class MimePart {
   }
 
   /// Parsed parameters of the `Content-Type` header (charset, boundary, name).
-  Map<String, String> get contentTypeParameters => _parseParams(headers['content-type']);
+  Map<String, String> get contentTypeParameters =>
+      _parseParams(headers['content-type']);
 
   /// Parsed parameters of the `Content-Disposition` header.
   Map<String, String> get contentDispositionParameters =>

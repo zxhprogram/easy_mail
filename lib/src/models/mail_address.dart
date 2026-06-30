@@ -25,7 +25,9 @@ class MailAddress {
     if (lt != -1 && gt != -1 && gt > lt) {
       final addr = value.substring(lt + 1, gt).trim();
       var namePart = lt > 0 ? value.substring(0, lt).trim() : '';
-      if (namePart.startsWith('"') && namePart.endsWith('"') && namePart.length >= 2) {
+      if (namePart.startsWith('"') &&
+          namePart.endsWith('"') &&
+          namePart.length >= 2) {
         namePart = namePart.substring(1, namePart.length - 1);
       }
       namePart = CharsetDecoder.instance.decodeHeader(namePart);
@@ -71,12 +73,14 @@ class MailAddress {
 
   Map<String, dynamic> toJson() => {'name': name, 'address': address};
 
-  factory MailAddress.fromJson(Map<String, dynamic> json) =>
-      MailAddress(address: json['address'] as String? ?? '', name: json['name'] as String? ?? '');
+  factory MailAddress.fromJson(Map<String, dynamic> json) => MailAddress(
+      address: json['address'] as String? ?? '',
+      name: json['name'] as String? ?? '');
 
   @override
   bool operator ==(Object other) =>
-      identical(this, other) || (other is MailAddress && other.name == name && other.address == address);
+      identical(this, other) ||
+      (other is MailAddress && other.name == name && other.address == address);
 
   @override
   int get hashCode => Object.hash(name, address);
