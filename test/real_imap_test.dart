@@ -1,156 +1,230 @@
-// Real IMAP integration test against QQ Mail.
-//
-// Requires network access. Run with:
-//   dart test test/real_imap_test.dart
-//
-// Credentials are user-provided authorization codes (QQ Mail uses auth codes
-// instead of account passwords for IMAP/SMTP).
-
-@Tags(['network'])
-library real_imap_test;
+import 'dart:convert';
 
 import 'package:easy_mail/easy_mail.dart';
 import 'package:test/test.dart';
 
-void main() {
-  const host = 'imap.qq.com';
-  const port = 993;
-  const username = 'xxx@qq.com';
-  const password = 'xxx';
+import 'helpers/fake_mail_socket.dart';
 
+void main() {
+  late FakeMailSocket socket;
   late ImapClient client;
 
   setUp(() {
+    socket = FakeMailSocket();
     client = ImapClient(
-      host: host,
-      port: port,
-      tlsOptions: TlsOptions.secureImplicit,
+      host: 'imap.example.com',
+      port: 993,
+      socketFactory: socket,
     );
   });
 
-  tearDown(() async {
-    if (client.isConnected) {
-      await client.disconnect();
-    }
-  });
-
-  test('connect and login to QQ Mail over IMAPS', () async {
+  test('connect reads greeting', () async {
+    socket.feed('* OK IMAP4rev1 ready\r\n');
     await client.connect();
     expect(client.isConnected, isTrue);
-    print('✓ Connected to $host:$port (implicit TLS)');
-  }, timeout: const Timeout(Duration(seconds: 30)));
+  });
 
-  test('authenticate with authorization code', () async {
+  test('login issues LOGIN command', () async {
+    socket
+      ..feed('* OK ready\r\n')
+      ..feed('A1 OK LOGIN completed\r\n');
     await client.connect();
-    await client.login(username, password);
-    print('✓ Authenticated as $username');
-  }, timeout: const Timeout(Duration(seconds: 30)));
+    await client.login('alice', 'secret');
+    expect(socket.writtenText, contains('A1 LOGIN "alice" "secret"'));
+  });
 
-  test('list mailboxes', () async {
+  test('selectMailbox parses EXISTS/UIDVALIDITY/UIDNEXT/FLAGS', () async {
+    socket
+      ..feed('* OK ready\r\n')
+      ..feed('A1 OK LOGIN completed\r\n')
+      ..feed('* FLAGS (\\Seen \\Answered)\r\n'
+          '* 10 EXISTS\r\n'
+          '* 0 RECENT\r\n'
+          '* OK [UIDVALIDITY 12345] ok\r\n'
+          '* OK [UIDNEXT 100] ok\r\n'
+          'A2 OK SELECT completed\r\n');
     await client.connect();
-    await client.login(username, password);
-    final mailboxes = await client.listMailboxes();
-    print('✓ Mailboxes: $mailboxes');
-    expect(mailboxes, isNotEmpty);
-    expect(mailboxes, contains('INBOX'));
-  }, timeout: const Timeout(Duration(seconds: 30)));
-
-  test('select INBOX and read status', () async {
-    await client.connect();
-    await client.login(username, password);
+    await client.login('alice', 'secret');
     final box = await client.selectMailbox('INBOX');
-    print('✓ INBOX: exists=${box.exists}, recent=${box.recent}, '
-        'uidValidity=${box.uidValidity}, uidNext=${box.uidNext}');
-    print('  flags: ${box.flags}');
-    expect(box.exists, greaterThanOrEqualTo(0));
-  }, timeout: const Timeout(Duration(seconds: 30)));
+    expect(box.exists, 10);
+    expect(box.recent, 0);
+    expect(box.uidValidity, 12345);
+    expect(box.uidNext, 100);
+    expect(box.flags, contains('\\Seen'));
+    expect(socket.writtenText, contains('A2 SELECT "INBOX"'));
+  });
 
-  test('search and fetch latest message envelope', () async {
+  test('listMailboxes parses LIST entries', () async {
+    socket
+      ..feed('* OK ready\r\n')
+      ..feed('A1 OK LOGIN completed\r\n')
+      ..feed('* LIST () "/" "INBOX"\r\n'
+          '* LIST () "/" "Sent"\r\n'
+          'A2 OK LIST done\r\n');
     await client.connect();
-    await client.login(username, password);
-    await client.selectMailbox('INBOX');
+    await client.login('alice', 'secret');
+    final names = await client.listMailboxes();
+    expect(names, ['INBOX', 'Sent']);
+  });
 
-    final uids = await client.search(filter: 'ALL');
-    print('✓ Found ${uids.length} message(s); UIDs: ${uids.take(10).toList()}'
-        '${uids.length > 10 ? ' ...' : ''}');
-
-    if (uids.isNotEmpty) {
-      final latest = uids.last;
-      final env = await client.fetchEnvelope(latest);
-      print('  Latest (UID $latest):');
-      print('    Subject: ${env.subject}');
-      print('    From: ${env.from}');
-      print('    To: ${env.to}');
-      print('    Date: ${env.date}');
-      print('    Message-ID: ${env.messageId}');
-      expect(env, isNotNull);
-    } else {
-      print('  (mailbox is empty — nothing to fetch)');
-    }
-  }, timeout: const Timeout(Duration(seconds: 30)));
-
-  test('fetch and parse full latest message', () async {
+  test('search returns UIDs', () async {
+    socket
+      ..feed('* OK ready\r\n')
+      ..feed('A1 OK LOGIN completed\r\n')
+      ..feed('* SEARCH 1 2 3\r\nA2 OK SEARCH done\r\n');
     await client.connect();
-    await client.login(username, password);
-    await client.selectMailbox('INBOX');
+    await client.login('alice', 'secret');
+    final uids = await client.search(filter: 'UNSEEN');
+    expect(uids, [1, 2, 3]);
+    expect(socket.writtenText, contains('A2 UID SEARCH UNSEEN'));
+  });
 
-    final uids = await client.search(filter: 'ALL');
-    if (uids.isEmpty) {
-      print('  (mailbox is empty — skipping)');
-      return;
-    }
-    for (final uid in uids) {
-      print('  UID $uid');
-    }
-
-    // final latest = uids.last;
-    final latest = 6830;
-    final msg = await client.fetchMessage(latest);
-    print('✓ Parsed full message (UID $latest):');
-    print('    Subject: ${msg.subject}');
-    print('    From: ${msg.from}');
-    print('    PlainText body length: ${msg.plainTextBody.length}');
-    print('    HTML body length: ${msg.htmlBody.length}');
-    print('    HTML body: ${msg.htmlBody}');
-    print('    Attachments: ${msg.attachments.length}');
-    for (final a in msg.attachments) {
-      print('      - ${a.fileName} (${a.size} bytes, ${a.mimeType})');
-    }
-    if (msg.plainTextBody.isNotEmpty) {
-      final preview = msg.plainTextBody.length > 200
-          ? '${msg.plainTextBody.substring(0, 200)}...'
-          : msg.plainTextBody;
-      print('    Body preview: $preview');
-    }
-  }, timeout: const Timeout(Duration(seconds: 30)));
-
-  test('mark latest message as seen', () async {
+  test('search empty result', () async {
+    socket
+      ..feed('* OK ready\r\n')
+      ..feed('A1 OK LOGIN completed\r\n')
+      ..feed('* SEARCH\r\nA2 OK SEARCH done\r\n');
     await client.connect();
-    await client.login(username, password);
-    await client.selectMailbox('INBOX');
+    await client.login('alice', 'secret');
+    final uids = await client.search();
+    expect(uids, isEmpty);
+  });
 
-    final uids = await client.search(filter: 'ALL');
-    if (uids.isEmpty) {
-      print('  (mailbox is empty — skipping)');
-      return;
+  test('fetchEnvelope parses header literal', () async {
+    const headerBlock = 'From: alice@example.com\r\n'
+        'To: bob@example.com\r\n'
+        'Subject: Hello\r\n'
+        'Date: Mon, 02 Jan 2023 03:04:05 +0000\r\n'
+        'Message-ID: <abc@example.com>\r\n'
+        '\r\n';
+    final headerBytes = utf8.encode(headerBlock);
+    final n = headerBytes.length;
+    socket
+      ..feed('* OK ready\r\n')
+      ..feed('A1 OK LOGIN completed\r\n')
+      ..feed('* 1 FETCH (BODY[HEADER] {$n}\r\n'
+          '${utf8.decode(headerBytes)})\r\n'
+          'A2 OK FETCH done\r\n');
+    await client.connect();
+    await client.login('alice', 'secret');
+    final env = await client.fetchEnvelope(1);
+    expect(env.subject, 'Hello');
+    expect(env.from.first.address, 'alice@example.com');
+    expect(env.to.first.address, 'bob@example.com');
+    expect(socket.writtenText, contains('A2 UID FETCH 1 BODY.PEEK[HEADER]'));
+  });
+
+  test('fetchBodySection returns literal bytes', () async {
+    const body = 'plain body text';
+    final bodyBytes = utf8.encode(body);
+    final n = bodyBytes.length;
+    socket
+      ..feed('* OK ready\r\n')
+      ..feed('A1 OK LOGIN completed\r\n')
+      ..feed('* 1 FETCH (BODY[TEXT] {$n}\r\n'
+          '${utf8.decode(bodyBytes)})\r\n'
+          'A2 OK FETCH done\r\n');
+    await client.connect();
+    await client.login('alice', 'secret');
+    final bytes = await client.fetchBodySection(1, 'TEXT');
+    expect(utf8.decode(bytes), body);
+  });
+
+  test('fetchAttachmentPayloadStream chunks the literal', () async {
+    final data = utf8.encode('x' * 10000);
+    final n = data.length;
+    socket
+      ..feed('* OK ready\r\n')
+      ..feed('A1 OK LOGIN completed\r\n')
+      ..feed('* 1 FETCH (BODY[1] {$n}\r\n'
+          '${utf8.decode(data)})\r\n'
+          'A2 OK FETCH done\r\n');
+    await client.connect();
+    await client.login('alice', 'secret');
+    final collected = <int>[];
+    await for (final chunk in client.fetchAttachmentPayloadStream(1, '1')) {
+      collected.addAll(chunk);
     }
+    expect(collected, data);
+  });
 
-    final latest = uids.last;
-    await client.markSeen(latest);
-    print('✓ Marked UID $latest as \\Seen');
-  }, timeout: const Timeout(Duration(seconds: 30)));
+  test('fetchMessage parses full RFC822 literal', () async {
+    const raw = 'From: a@x.com\r\n'
+        'Subject: Full\r\n'
+        'Content-Type: text/plain; charset=utf-8\r\n'
+        '\r\n'
+        'Body text';
+    final rawBytes = utf8.encode(raw);
+    final n = rawBytes.length;
+    socket
+      ..feed('* OK ready\r\n')
+      ..feed('A1 OK LOGIN completed\r\n')
+      ..feed('* 1 FETCH (RFC822 {$n}\r\n'
+          '${utf8.decode(rawBytes)})\r\n'
+          'A2 OK FETCH done\r\n');
+    await client.connect();
+    await client.login('alice', 'secret');
+    final msg = await client.fetchMessage(1);
+    expect(msg.subject, 'Full');
+    expect(msg.plainTextBody, 'Body text');
+  });
+
+  test('markSeen issues STORE command', () async {
+    socket
+      ..feed('* OK ready\r\n')
+      ..feed('A1 OK LOGIN completed\r\n')
+      ..feed('A2 OK STORE done\r\n');
+    await client.connect();
+    await client.login('alice', 'secret');
+    await client.markSeen(5);
+    expect(
+        socket.writtenText, contains('A2 UID STORE 5 +FLAGS.SILENT (\\Seen)'));
+  });
 
   test('connectionState stream emits lifecycle', () async {
+    socket
+      ..feed('* OK ready\r\n')
+      ..feed('A1 OK LOGIN completed\r\n')
+      ..feed('A2 OK SELECT completed\r\n');
     final states = <ImapConnectionState>[];
     final sub = client.connectionState.listen(states.add);
     await client.connect();
-    await client.login(username, password);
+    await client.login('alice', 'secret');
     await client.selectMailbox('INBOX');
     await sub.cancel();
-    print('✓ States: $states');
     expect(states, contains(ImapConnectionState.connecting));
     expect(states, contains(ImapConnectionState.connected));
     expect(states, contains(ImapConnectionState.authenticated));
     expect(states, contains(ImapConnectionState.ready));
-  }, timeout: const Timeout(Duration(seconds: 30)));
+  });
+
+  test('IDLE emits newMail on EXISTS and stops on DONE', () async {
+    socket
+      ..feed('* OK ready\r\n')
+      ..feed('A1 OK LOGIN completed\r\n')
+      ..feed('+ idling\r\n')
+      ..feed('* 11 EXISTS\r\n')
+      ..feed('* 1 EXPUNGE\r\n');
+    await client.connect();
+    await client.login('alice', 'secret');
+
+    final events = <MailEvent>[];
+    final sub = client.idle().listen(events.add);
+    // Give the IDLE loop time to consume the pushed events.
+    await Future<void>.delayed(const Duration(milliseconds: 50));
+    await client.stopIdle();
+    await sub.cancel();
+    expect(events.any((e) => e.type == MailEventType.newMail), isTrue);
+    expect(events.any((e) => e.type == MailEventType.expunged), isTrue);
+    expect(socket.writtenText, contains('IDLE'));
+    expect(socket.writtenText, contains('DONE'));
+  });
+
+  test('failed login throws ImapException', () async {
+    socket
+      ..feed('* OK ready\r\n')
+      ..feed('A1 NO authentication failed\r\n');
+    await client.connect();
+    expect(() => client.login('alice', 'bad'), throwsA(isA<ImapException>()));
+  });
 }
