@@ -6,14 +6,17 @@
 // Credentials are user-provided authorization codes (QQ Mail uses auth codes
 // instead of account passwords for IMAP/SMTP).
 
-import 'package:dart_mail_kit/dart_mail_kit.dart';
+@Tags(['network'])
+library real_imap_test;
+
+import 'package:easy_mail/easy_mail.dart';
 import 'package:test/test.dart';
 
 void main() {
   const host = 'imap.qq.com';
   const port = 993;
   const username = 'xxx@qq.com';
-  const password = 'yyyy';
+  const password = 'xxx';
 
   late ImapClient client;
 
@@ -96,8 +99,12 @@ void main() {
       print('  (mailbox is empty — skipping)');
       return;
     }
+    for (final uid in uids) {
+      print('  UID $uid');
+    }
 
-    final latest = uids.last;
+    // final latest = uids.last;
+    final latest = 6830;
     final msg = await client.fetchMessage(latest);
     print('✓ Parsed full message (UID $latest):');
     print('    Subject: ${msg.subject}');
