@@ -1,4 +1,4 @@
-import 'package:dart_mail_kit/src/models/connection_state.dart';
+import 'package:easy_mail/src/models/connection_state.dart';
 
 /// Kinds of events delivered by the IMAP IDLE `Stream<MailEvent>`.
 enum MailEventType { newMail, deleted, flagChanged, expunged, mailboxChanged }

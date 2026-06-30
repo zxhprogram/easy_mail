@@ -1,4 +1,4 @@
-import 'package:dart_mail_kit/src/parser/charset_decoder.dart';
+import 'package:easy_mail/src/parser/charset_decoder.dart';
 
 /// An immutable representation of a mailbox address (RFC 5322 `mailbox`).
 class MailAddress {

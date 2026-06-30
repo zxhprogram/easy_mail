@@ -2,14 +2,14 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:dart_mail_kit/src/client/mail_socket.dart';
-import 'package:dart_mail_kit/src/models/connection_state.dart';
-import 'package:dart_mail_kit/src/models/mail_envelope.dart';
-import 'package:dart_mail_kit/src/models/mail_event.dart';
-import 'package:dart_mail_kit/src/models/mail_message.dart';
-import 'package:dart_mail_kit/src/parser/mime_parser.dart';
-import 'package:dart_mail_kit/src/security/authenticator.dart';
-import 'package:dart_mail_kit/src/security/tls_options.dart';
+import 'package:easy_mail/src/client/mail_socket.dart';
+import 'package:easy_mail/src/models/connection_state.dart';
+import 'package:easy_mail/src/models/mail_envelope.dart';
+import 'package:easy_mail/src/models/mail_event.dart';
+import 'package:easy_mail/src/models/mail_message.dart';
+import 'package:easy_mail/src/parser/mime_parser.dart';
+import 'package:easy_mail/src/security/authenticator.dart';
+import 'package:easy_mail/src/security/tls_options.dart';
 
 /// Summary of a selected mailbox.
 class MailboxInfo {

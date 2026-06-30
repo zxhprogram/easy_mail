@@ -1,10 +1,10 @@
-/// dart_mail_kit — Pure Dart mail protocol parsing & communication library.
+/// easy_mail — Pure Dart mail protocol parsing & communication library.
 ///
 /// See PRODUCT.md for the full design. This library is split into two
 /// independently-importable layers:
 ///   * [models] / [parser] — work on every platform (including Web).
 ///   * [client] / [security] — use `dart:io` sockets, unavailable on Web.
-library dart_mail_kit;
+library easy_mail;
 
 // --- Models (platform independent) ---
 export 'src/models/mail_address.dart';

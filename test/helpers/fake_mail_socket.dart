@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:dart_mail_kit/dart_mail_kit.dart';
+import 'package:easy_mail/easy_mail.dart';
 
 /// A scriptable [MailSocket] for unit-testing the protocol clients without a
 /// live server. The test feeds server responses via [feed] / [feedBytes] and

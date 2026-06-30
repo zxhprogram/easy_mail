@@ -1,7 +1,7 @@
 import 'dart:convert';
 
-import 'package:dart_mail_kit/src/models/attachment.dart';
-import 'package:dart_mail_kit/src/parser/charset_decoder.dart';
+import 'package:easy_mail/src/models/attachment.dart';
+import 'package:easy_mail/src/parser/charset_decoder.dart';
 
 /// Disposition of a MIME part per RFC 2183.
 enum ContentDisposition { inline, attachment, unknown }

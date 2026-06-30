@@ -1,4 +1,4 @@
-name: dart_mail_kit
+name: easy_mail
 description: "Pure Dart mail protocol parsing & communication library for Flutter and Dart VM."
 version: 0.1.0
 publish_to: none

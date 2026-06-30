@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import 'package:dart_mail_kit/src/client/mail_socket.dart';
-import 'package:dart_mail_kit/src/security/tls_options.dart';
+import 'package:easy_mail/src/client/mail_socket.dart';
+import 'package:easy_mail/src/security/tls_options.dart';
 
 /// Lightweight POP3 client. Returns raw RFC 5322 messages that can be fed to
 /// [MimeParser] for parsing.

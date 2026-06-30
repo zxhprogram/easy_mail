@@ -1,7 +1,7 @@
-import 'package:dart_mail_kit/src/models/attachment.dart';
-import 'package:dart_mail_kit/src/models/mail_address.dart';
-import 'package:dart_mail_kit/src/models/mail_envelope.dart';
-import 'package:dart_mail_kit/src/models/mime_part.dart';
+import 'package:easy_mail/src/models/attachment.dart';
+import 'package:easy_mail/src/models/mail_address.dart';
+import 'package:easy_mail/src/models/mail_envelope.dart';
+import 'package:easy_mail/src/models/mime_part.dart';
 
 /// An immutable mail message: envelope + decoded bodies + attachments,
 /// produced by [MimeParser]. Designed to play nicely with Bloc/Riverpod and

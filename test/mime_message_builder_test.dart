@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:dart_mail_kit/dart_mail_kit.dart';
+import 'package:easy_mail/easy_mail.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -94,7 +94,7 @@ void main() {
     });
 
     test('buildStream emits the same bytes as build', () async {
-      const fixedId = '<fixed-stream@dart_mail_kit>';
+      const fixedId = '<fixed-stream@easy_mail>';
       final builder = MimeMessageBuilder()
           .from(const MailAddress(address: 'a@x.com'))
           .to(const MailAddress(address: 'b@y.com'))

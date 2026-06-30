@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:dart_mail_kit/src/models/mail_address.dart';
+import 'package:easy_mail/src/models/mail_address.dart';
 
 /// Fluent builder that assembles an RFC 5322 compliant message as a [String]
 /// or a chunked byte [Stream]. Supports plain text, HTML, inline images and
@@ -82,7 +82,7 @@ class MimeMessageBuilder {
     required String mimeType,
   }) {
     final cid =
-        '<${DateTime.now().microsecondsSinceEpoch}.$fileName@dart_mail_kit>';
+        '<${DateTime.now().microsecondsSinceEpoch}.$fileName@easy_mail>';
     _inline.add(_AttachmentSpec(
       bytes: bytes,
       fileName: fileName,
@@ -145,7 +145,7 @@ class MimeMessageBuilder {
     out.writeln('Date: ${_formatDate(DateTime.now().toUtc())}');
     final mid = _messageId.isNotEmpty
         ? _messageId
-        : '<${DateTime.now().microsecondsSinceEpoch}@dart_mail_kit>';
+        : '<${DateTime.now().microsecondsSinceEpoch}@easy_mail>';
     out.writeln('Message-ID: $mid');
     out.writeln('MIME-Version: 1.0');
     _extraHeaders.forEach((name, value) => out.writeln('$name: $value'));

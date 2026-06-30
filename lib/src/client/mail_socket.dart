@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:dart_mail_kit/src/security/tls_options.dart';
+import 'package:easy_mail/src/security/tls_options.dart';
 
 /// Abstraction over the underlying TCP/TLS transport. Injecting a fake
 /// implementation lets the protocol clients be unit-tested without a live

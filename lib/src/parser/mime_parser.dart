@@ -3,10 +3,10 @@ import 'dart:convert';
 import 'dart:isolate';
 import 'dart:typed_data';
 
-import 'package:dart_mail_kit/src/models/attachment.dart';
-import 'package:dart_mail_kit/src/models/mail_envelope.dart';
-import 'package:dart_mail_kit/src/models/mail_message.dart';
-import 'package:dart_mail_kit/src/models/mime_part.dart';
+import 'package:easy_mail/src/models/attachment.dart';
+import 'package:easy_mail/src/models/mail_envelope.dart';
+import 'package:easy_mail/src/models/mail_message.dart';
+import 'package:easy_mail/src/models/mime_part.dart';
 
 /// Streaming + Isolate-friendly MIME (RFC 2045/5322) parser.
 ///

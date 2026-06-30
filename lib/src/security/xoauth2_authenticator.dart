@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:dart_mail_kit/src/security/authenticator.dart';
+import 'package:easy_mail/src/security/authenticator.dart';
 
 /// RFC 6749 / Google XOAUTH2 SASL mechanism. Produces:
 /// `user=<user>\x01auth=Bearer <token>\x01\x01` base64-encoded, ready to use

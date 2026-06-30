@@ -1,4 +1,4 @@
-import 'package:dart_mail_kit/dart_mail_kit.dart';
+import 'package:easy_mail/easy_mail.dart';
 import 'package:test/test.dart';
 
 import 'helpers/fake_mail_socket.dart';

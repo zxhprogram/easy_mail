@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:dart_mail_kit/src/client/mail_socket.dart';
-import 'package:dart_mail_kit/src/models/mail_address.dart';
-import 'package:dart_mail_kit/src/security/authenticator.dart';
-import 'package:dart_mail_kit/src/security/tls_options.dart';
+import 'package:easy_mail/src/client/mail_socket.dart';
+import 'package:easy_mail/src/models/mail_address.dart';
+import 'package:easy_mail/src/security/authenticator.dart';
+import 'package:easy_mail/src/security/tls_options.dart';
 
 /// Result of a successful SMTP delivery.
 class SmtpResponse {

@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:crypto/crypto.dart';
-import 'package:dart_mail_kit/dart_mail_kit.dart';
+import 'package:easy_mail/easy_mail.dart';
 import 'package:test/test.dart';
 
 void main() {

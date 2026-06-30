@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:dart_mail_kit/src/models/mime_part.dart';
+import 'package:easy_mail/src/models/mime_part.dart';
 
 /// An immutable description of a decoded attachment, plus a factory that
 /// produces a chunked [Stream<List<int>>] so Flutter apps can pipe it straight

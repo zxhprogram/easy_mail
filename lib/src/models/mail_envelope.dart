@@ -1,5 +1,5 @@
-import 'package:dart_mail_kit/src/models/mail_address.dart';
-import 'package:dart_mail_kit/src/parser/charset_decoder.dart';
+import 'package:easy_mail/src/models/mail_address.dart';
+import 'package:easy_mail/src/parser/charset_decoder.dart';
 
 /// Immutable envelope (RFC 5322 header metadata) of a mail message.
 class MailEnvelope {
